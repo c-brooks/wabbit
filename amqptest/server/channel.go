@@ -63,7 +63,7 @@ func NewChannel(vhost *VHost) *Channel {
 	return &c
 }
 
-func (ch *Channel) QueueInspect(name string) (*Queue, error) {
+func (ch *Channel) QueueInspect(name string) (wabbit.Queue, error) {
 	q, ok := ch.queues[name]
 	if ok {
 		return q, nil
