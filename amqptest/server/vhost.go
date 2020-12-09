@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/c-brooks/wabbit"
 )
@@ -11,6 +12,7 @@ type VHost struct {
 	name      string
 	exchanges map[string]Exchange
 	queues    map[string]*Queue
+	mu        sync.Mutex
 }
 
 // NewVHost create a new fake AMQP Virtual Host
@@ -93,6 +95,9 @@ func (v *VHost) QueueDeclarePassive(name string, args wabbit.Option) (wabbit.Que
 }
 
 func (v *VHost) queueDeclare(name string, passive bool, args wabbit.Option) (wabbit.Queue, error) {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+
 	if q, ok := v.queues[name]; ok {
 		return q, nil
 	}
