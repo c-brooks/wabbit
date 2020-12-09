@@ -35,9 +35,9 @@ package main
 
 import (
 	"testing"
-	"github.com/NeowayLabs/wabbit/amqptest"
-	"github.com/NeowayLabs/wabbit/amqptest/server"
-	"github.com/NeowayLabs/wabbit/amqp"
+	"github.com/c-brooks/wabbit/amqptest"
+	"github.com/c-brooks/wabbit/amqptest/server"
+	"github.com/c-brooks/wabbit/amqp"
 )
 
 

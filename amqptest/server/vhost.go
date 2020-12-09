@@ -3,7 +3,7 @@ package server
 import (
 	"fmt"
 
-	"github.com/NeowayLabs/wabbit"
+	"github.com/c-brooks/wabbit"
 )
 
 // VHost is a fake AMQP virtual host
@@ -79,6 +79,9 @@ func (v *VHost) exchangeDeclare(name, kind string, passive bool, opt wabbit.Opti
 	}
 
 	return nil
+}
+func (v *VHost) QueueInspect(name string) (wabbit.Queue, error) {
+	return v.QueueInspect(name)
 }
 
 func (v *VHost) QueueDeclare(name string, args wabbit.Option) (wabbit.Queue, error) {

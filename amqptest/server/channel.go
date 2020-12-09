@@ -6,8 +6,8 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/NeowayLabs/wabbit"
-	"github.com/NeowayLabs/wabbit/utils"
+	"github.com/c-brooks/wabbit"
+	"github.com/c-brooks/wabbit/utils"
 	"github.com/streadway/amqp"
 )
 
@@ -61,6 +61,14 @@ func NewChannel(vhost *VHost) *Channel {
 	}
 
 	return &c
+}
+
+func (ch *Channel) QueueInspect(name string) (wabbit.Queue, error) {
+	q, ok := ch.queues[name]
+	if ok {
+		return q, nil
+	}
+	return nil, fmt.Errorf("no queue named %s", name)
 }
 
 func (ch *Channel) Confirm(noWait bool) error {
