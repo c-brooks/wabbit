@@ -2,8 +2,9 @@ package server
 
 import (
 	"fmt"
+	"sync"
 
-	"github.com/NeowayLabs/wabbit"
+	"github.com/c-brooks/wabbit"
 )
 
 // VHost is a fake AMQP virtual host
@@ -11,6 +12,7 @@ type VHost struct {
 	name      string
 	exchanges map[string]Exchange
 	queues    map[string]*Queue
+	mu        sync.Mutex
 }
 
 // NewVHost create a new fake AMQP Virtual Host
@@ -29,6 +31,7 @@ func (v *VHost) createDefaultExchanges() {
 	exchs := make(map[string]Exchange)
 	exchs["amq.topic"] = NewTopicExchange("amq.topic")
 	exchs["amq.direct"] = NewDirectExchange("amq.direct")
+	exchs["amq.fanout"] = NewFanoutExchange("amq.fanout")
 	exchs["topic"] = NewTopicExchange("topic")
 	exchs["direct"] = NewDirectExchange("direct")
 	exchs[""] = NewDirectExchange("amq.direct")
@@ -74,11 +77,17 @@ func (v *VHost) exchangeDeclare(name, kind string, passive bool, opt wabbit.Opti
 		v.exchanges[name] = NewTopicExchange(name)
 	case "direct":
 		v.exchanges[name] = NewDirectExchange(name)
+	case "fanout":
+		v.exchanges[name] = NewFanoutExchange(name)
+
 	default:
 		return fmt.Errorf("Invalid exchange type: %s", kind)
 	}
 
 	return nil
+}
+func (v *VHost) QueueInspect(name string) (wabbit.Queue, error) {
+	return v.QueueInspect(name)
 }
 
 func (v *VHost) QueueDeclare(name string, args wabbit.Option) (wabbit.Queue, error) {
@@ -90,6 +99,9 @@ func (v *VHost) QueueDeclarePassive(name string, args wabbit.Option) (wabbit.Que
 }
 
 func (v *VHost) queueDeclare(name string, passive bool, args wabbit.Option) (wabbit.Queue, error) {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+
 	if q, ok := v.queues[name]; ok {
 		return q, nil
 	}
