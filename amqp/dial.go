@@ -6,6 +6,7 @@ import (
 	"github.com/c-brooks/wabbit"
 	"github.com/c-brooks/wabbit/utils"
 	"github.com/streadway/amqp"
+	"crypto/tls"
 )
 
 // Conn is the amqp connection
@@ -26,6 +27,31 @@ func Dial(uri string) (*Conn, error) {
 		var err error
 
 		conn.Connection, err = amqp.Dial(uri)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	err := conn.dialFn()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
+}
+
+// Dial to AMQP broker over TLS
+func DialTLS(uri string, tlsConfig *tls.Config) (*Conn, error) {
+	conn := &Conn{}
+
+	conn.dialFn = func() error {
+		var err error
+
+		conn.Connection, err = amqp.DialTLS(uri, tlsConfig)
 
 		if err != nil {
 			return err
